@@ -42,7 +42,7 @@ class Graph():
         try:
             edge = self.graph[u][v]
             if edge:
-                print (f'Deleting graph[{u}][{v}]={self.graph[u][v]}')
+                # print (f'Deleting graph[{u}][{v}]={self.graph[u][v]}')
                 self.graph[u][v] = -1
                 self.graph[v][u] = -1
                 return edge
@@ -109,8 +109,8 @@ class ConnectedComponents():
         self.nodes[indexU].update(self.nodes[indexV])
         self.nodes.pop(indexV)
         
-        print (f'Merged {u} and {v}')
-        print (f'Remaining nodes after merging are: {self.nodes}')
+        # print (f'Merged {u} and {v}')
+        # print (f'Remaining nodes after merging are: {self.nodes}')
     
     def getMinimumWeightedEdges(self, graph, debug=False):
         minimumEdge = None
@@ -127,7 +127,7 @@ class ConnectedComponents():
                                 minimumEdge = (source, target, weight)
                                 # print (f'node = {node}, vertex = {vertex}, edges = {edges}')
                                 # print (f'Minimum edge weight is graph[{minimumEdge[0]}][{minimumEdge[1]}]={minimumEdge[2]}')
-        print (f'Final minimum edge is {minimumEdge}\n')
+        (print (f'Final minimum edge is {minimumEdge}') if debug else None)
         return minimumEdge
 
     def print(self):
@@ -175,9 +175,9 @@ def boruvka(graph, debug=False):
     # Return the weight of the MST 
     return minimumSpanningTree.totalWeight
 
-def driver(n, edges):
+def driver(n, edges, tests):
     debug = False
-    debugIndex = 1
+    debugIndex = -1
 
     graph = Graph(n)
     
@@ -185,7 +185,6 @@ def driver(n, edges):
     for i in range(0, len(edges)):
         source, target, weight = edges[i]
         graph.add(source, target, weight)
-        # print (f'source: {source}, target: {target}')
 
     criticalEdge = set()
     pseudoCriticalEdge = set()
@@ -198,11 +197,9 @@ def driver(n, edges):
         graph.deleteEdge(source, target)
 
         mstWithoutOneEdge = boruvka(graph, debug=(True if i == debugIndex else False))
-        print (f'MST Weight is = {mstWithoutOneEdge} for i = {i} \n')
-        # graph.print() 
+        # print (f'MST Weight is = {mstWithoutOneEdge} for i = {i} \n')
 
-        assert((mstWithoutOneEdge == 8 if i == 0 else True))
-        assert((mstWithoutOneEdge == 7 if i == 1 else True))
+        assert(mstWithoutOneEdge == tests[i])
 
         if mstWithoutOneEdge > mstAllEdges or mstWithoutOneEdge == -1:
             criticalEdge.add(i)
@@ -215,6 +212,7 @@ def driver(n, edges):
 
 if __name__ == "__main__":
     edges = [[0,1,1],[1,2,1],[2,3,2],[0,3,2],[0,4,3],[3,4,3],[1,4,6]]
+    tests = [8,8,7,7,7,7,7]
     n = 5
-    mst = driver(n, edges)
+    mst = driver(n, edges, tests)
     print (mst)
