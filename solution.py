@@ -2,13 +2,17 @@ class Graph():
     def __init__(self, n) -> None:
         self.__len__ = 0
         self.graph = [[-1 for _ in range(n)] for _ in range(n)]
-
+        
+        self.vertices = set()
         self.totalWeight = 0
     
     def add(self, u, v, weight):
         self.graph[u][v] = weight
         self.graph[v][u] = weight
         
+        self.vertices.add(u)
+        self.vertices.add(v)
+
         self.totalWeight += weight
         self.__len__ += 1
 
@@ -29,7 +33,7 @@ class Graph():
         edges = []
 
         for i in range(0, len(self.graph)):
-            if i != u: edges.append(self.getEdge(u,i))
+            edges.append(self.getEdge(u,i))
         
         # print (f'Getting {u} edges: {edges}')
         return edges
@@ -44,8 +48,11 @@ class Graph():
                 return edge
         except:
             return None
+    
+    def getNumberOfVertices(self):
+        return len(self.vertices)
 
-    def print(self):
+    def printWithVertexInformation(self):
         '''
         Prints the graph. Outputs: 
             Vertex #0: 1: 1, 3: 2, 4: 3
@@ -62,6 +69,9 @@ class Graph():
             print (f'Vertex #{i}: {res}'[:-2])
         print ()
     
+    def printGraphAsTable(self):
+        print('\n'.join([''.join(['{:4}'.format(item) for item in row]) for row in self.graph]))
+
     def __len__(self):
         return self.__len__
 
@@ -69,7 +79,7 @@ class ConnectedComponents():
     def __init__(self, numberOfEdges) -> None:
         self.n = numberOfEdges
         self.nodes = []
-        for i in range(0, numberOfEdges-1):
+        for i in range(0, numberOfEdges):
             self.nodes.append({ i })
 
     def find(self, u):
@@ -99,24 +109,25 @@ class ConnectedComponents():
         self.nodes[indexU].update(self.nodes[indexV])
         self.nodes.pop(indexV)
         
-        # print (f'Merged {u} and {v}')
-        # print (f'Remaining nodes after merging are: {self.nodes}')
+        print (f'Merged {u} and {v}')
+        print (f'Remaining nodes after merging are: {self.nodes}')
     
     def getMinimumWeightedEdges(self, graph, debug=False):
         minimumEdge = None
         for node in self.nodes:
             for vertex in node:
                 edges = graph.getEdges(vertex) 
-                (print (f'node = {node}, vertex = {vertex}, edges = {edges}') if debug else None)
-                for i in range(0, len(edges)):
+                # (print (f'node = {node}, vertex = {vertex}, edges = {edges}') if debug else None)
+                for i in range(0, len(edges)-1):
                     if edges[i] != -1:
                         source, target, weight = vertex, i, edges[i]
                         if target not in node:
                             # Select the minimum-weight edge incident on v
                             if minimumEdge == None or minimumEdge[2] > weight:
                                 minimumEdge = (source, target, weight)
-        
-        print (f'Minimum edge weight is graph[{minimumEdge[0]}][{minimumEdge[1]}]={minimumEdge[2]}')
+                                # print (f'node = {node}, vertex = {vertex}, edges = {edges}')
+                                # print (f'Minimum edge weight is graph[{minimumEdge[0]}][{minimumEdge[1]}]={minimumEdge[2]}')
+        print (f'Final minimum edge is {minimumEdge}\n')
         return minimumEdge
 
     def print(self):
@@ -135,7 +146,7 @@ def boruvka(graph, debug=False):
         weighted undirected connected graph
     """
 
-    numberOfEdges = len(graph)-1
+    numberOfEdges = graph.getNumberOfVertices()
 
     # Initialize a forest F to (V, E') where E' = {}.
     connectedComponents = ConnectedComponents(numberOfEdges)
@@ -166,7 +177,7 @@ def boruvka(graph, debug=False):
 
 def driver(n, edges):
     debug = False
-    debugIndex = -1
+    debugIndex = 1
 
     graph = Graph(n)
     
@@ -174,13 +185,12 @@ def driver(n, edges):
     for i in range(0, len(edges)):
         source, target, weight = edges[i]
         graph.add(source, target, weight)
-    # graph.print()
-    # return 
+        # print (f'source: {source}, target: {target}')
 
     criticalEdge = set()
     pseudoCriticalEdge = set()
     mstAllEdges = boruvka(graph, debug)
-    print (f'MST of the graph is {mstAllEdges}\n')
+    assert(mstAllEdges == 7)
 
     for i in range(0, len(edges)):
         edge = edges[i]
@@ -190,6 +200,9 @@ def driver(n, edges):
         mstWithoutOneEdge = boruvka(graph, debug=(True if i == debugIndex else False))
         print (f'MST Weight is = {mstWithoutOneEdge} for i = {i} \n')
         # graph.print() 
+
+        assert((mstWithoutOneEdge == 8 if i == 0 else True))
+        assert((mstWithoutOneEdge == 7 if i == 1 else True))
 
         if mstWithoutOneEdge > mstAllEdges or mstWithoutOneEdge == -1:
             criticalEdge.add(i)
