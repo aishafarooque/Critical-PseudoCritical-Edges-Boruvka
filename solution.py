@@ -1,8 +1,8 @@
 class Graph():
-    def __init__(self, n) -> None:
+    def __init__(self, n):
         self.__len__ = 0
         self.graph = [[-1 for _ in range(n)] for _ in range(n)]
-        
+
         self.vertices = set()
         self.totalWeight = 0
     
@@ -65,7 +65,7 @@ class Graph():
             res = ''
             for j in range(0, len(self.graph[i])):
                 if self.graph[i][j] != -1:
-                    res += f'{j}: {self.graph[i][j]}, '
+                    res += (f'{j}: {self.graph[i][j]}, ')
             print (f'Vertex #{i}: {res}'[:-2])
         print ()
     
@@ -186,10 +186,10 @@ def driver(n, edges, tests):
         source, target, weight = edges[i]
         graph.add(source, target, weight)
 
-    criticalEdge = set()
-    pseudoCriticalEdge = set()
+    criticalEdge = []
+    pseudoCriticalEdge = []
     mstAllEdges = boruvka(graph, debug)
-    assert(mstAllEdges == 7)
+    if tests: assert(mstAllEdges == 7)
 
     for i in range(0, len(edges)):
         edge = edges[i]
@@ -197,22 +197,26 @@ def driver(n, edges, tests):
         graph.deleteEdge(source, target)
 
         mstWithoutOneEdge = boruvka(graph, debug=(True if i == debugIndex else False))
-        # print (f'MST Weight is = {mstWithoutOneEdge} for i = {i} \n')
 
-        assert(mstWithoutOneEdge == tests[i])
+        if tests: assert(mstWithoutOneEdge == tests[i])
 
         if mstWithoutOneEdge > mstAllEdges or mstWithoutOneEdge == -1:
-            criticalEdge.add(i)
+            criticalEdge.append(i)
         elif mstWithoutOneEdge == mstAllEdges:
-            pseudoCriticalEdge.add(i)
+            pseudoCriticalEdge.append(i)
         
         graph.add(source, target, weight)
 
-    return {'critical': criticalEdge, 'pseudoCritical': pseudoCriticalEdge}
+    return [criticalEdge, pseudoCriticalEdge]
 
 if __name__ == "__main__":
     edges = [[0,1,1],[1,2,1],[2,3,2],[0,3,2],[0,4,3],[3,4,3],[1,4,6]]
     tests = [8,8,7,7,7,7,7]
     n = 5
+    mst = driver(n, edges, tests)
+    # print (mst)
+
+    edges = [[0,1,1],[1,2,1],[2,3,1],[0,3,1]]
+    n = 4
     mst = driver(n, edges, tests)
     print (mst)
