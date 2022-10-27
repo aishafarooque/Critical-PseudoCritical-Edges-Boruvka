@@ -108,21 +108,11 @@ class Graph:
             # cheapest of every component
             for i in range(len(self.graph)):
 
-                numberOfUnknowns = 0
-
                 # Find components (or sets) of two corners
                 # of current edge
                 u, v, w = self.graph[i]
                 set1 = self.find(parent, u)
                 set2 = self.find(parent, v)
-
-                # if (2,3) == skip:
-                    # print (f'pick: {pick}, skip: {skip}, parent: {parent}')
-                    # print (f'u: {u}, v: {v}, set1: {set1}, set2: {set2}, cheapest: {cheapest}\n')
-                    # previousEdge = self.graph[i-1]
-                    # nextEdge = self.graph[i+1]
-                    # if self.getEdge(previousEdge[0], nextEdge[0]) == -1:
-                    #     return -1
 
                 if pick and self.graph[i] == pick:
                     cheapest[set1] = [u, v, w]
@@ -152,6 +142,7 @@ class Graph:
                 self.union(parent, rank, set1, set2)
                 MSTweight += w
                 numTrees -= 1
+
 
             # Consider the above picked cheapest edges and add them
             # to MST
