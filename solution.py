@@ -83,6 +83,8 @@ class Graph:
         return self.closest[parentSet][2] > v
 
     def boruvka(self, pick, skip):
+        ''' The pseudocode for this algorithm is from Dr. Gopal's book. An explanation 
+        is inside the report submitted with this code.'''
 
         numberOfVertices = self.numberOfVertices
         self.closest = [-1] * numberOfVertices
