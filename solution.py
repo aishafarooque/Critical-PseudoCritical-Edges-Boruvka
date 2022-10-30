@@ -4,6 +4,9 @@ The driver function for these classes is inside main.py.
 The code is written in Python and can be run using Python and Python3 as languages on Leetcode.
 
 https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/
+
+Due to a known bug on Leetcode, this code may not be accepted on the first run. However, here's proof of 
+submission: https://leetcode.com/submissions/detail/833591049/ 
 '''
 
 class Graph:
