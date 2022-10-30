@@ -81,32 +81,12 @@ class Graph:
             return u
         return self.find(self.parent[u])
 
-    def union(self, rank, u, v):
-        '''
-        When there is a request to union the sets containing node x and node y, the
-        algorithm first find the roots of x and y. If the root of x is different from the root of
-        y, one of their parent will be set to the other.
-
-        Reference - 
-            Parallelized Union Find Set, with an Application in Finding 
-            Connected Components in a Graph
-
-            Source: https://stanford.edu/~rezab/classes/cme323/S15/projects/parallel_union_find_report.pdf
-        '''
+    def union(self, u, v):
         rootU = self.find(u)
         rootV = self.find(v)
 
         if rootU != rootV:
-            rankU = rank[rootU]
-            rankV = rank[rootV]
-
-            if rankU > rankV:
-                self.parent[rootV] = rootU
-            elif rankU < rankV:
-                self.parent[rootU] = rootV
-            else:
-                self.parent[rootU] = rootV
-                rank[rootV] = rank[rootV] + 1
+            self.parent[rootU] = rootV
         else:
             return -1
     
@@ -120,7 +100,6 @@ class Graph:
 
         numberOfVertices = self.numberOfVertices
         self.cheapest = [-1] * numberOfVertices
-        rank = [0] * numberOfVertices
 
         mst = Graph(numberOfVertices)
 
@@ -132,7 +111,7 @@ class Graph:
         if pick:
             mst.addEdge(pick)
             u,v,w = pick
-            self.union(rank, u, v)
+            self.union(u, v)
             numberOfVertices -= 1
         
         # Before running Boruvka, we've checked that the graph is connected, therefore,
@@ -182,7 +161,7 @@ class Graph:
                     # exceed error).
                     if self.find(u) != self.find(v):
                         mst.addEdge(edge)
-                        self.union(rank, u, v)
+                        self.union(u, v)
 
                         # Since we contracted on the two edges, we can safely reduce the number of 
                         # vertices left to process.
