@@ -1,5 +1,4 @@
 import collections
-import sys
 
 '''
 Referenced - 
@@ -12,7 +11,7 @@ class Graph:
     def __init__(self, n):
         self.graph = []
         self.parent = []
-        self.closest = []
+        self.cheapest = []
         self.weight = 0
         self.numberOfVertices = n
     
@@ -122,7 +121,7 @@ class Graph:
         numberOfVertices = self.numberOfVertices
 
         self.parent = []
-        self.closest = [-1] * numberOfVertices
+        self.cheapest = [-1] * numberOfVertices
         rank = [0] * numberOfVertices
 
         mst = Graph(numberOfVertices)
@@ -155,16 +154,16 @@ class Graph:
                     # https://courses.engr.illinois.edu/cs374/fa2015/slides/18-mst.pdf 
                     
                     # For each tree in the connected components, find the closest edge
-                    if self.closest[rep1] == -1 or self.less(self.closest[rep1][2], w):
-                        self.closest[rep1] = edge
-                    if self.closest[rep2] == -1 or self.less(self.closest[rep2][2], w):
-                        self.closest[rep2] = edge
+                    if self.cheapest[rep1] == -1 or self.less(self.cheapest[rep1][2], w):
+                        self.cheapest[rep1] = edge
+                    if self.cheapest[rep2] == -1 or self.less(self.cheapest[rep2][2], w):
+                        self.cheapest[rep2] = edge
                 else:
                     # u and v belong to the same component
                     continue
             
             for i in range(0, self.numberOfVertices):
-                edge = self.closest[i]
+                edge = self.cheapest[i]
 
                 if edge and edge != -1:
                     u,v,w = edge
@@ -174,9 +173,7 @@ class Graph:
                         self.union(rank, u,v)
                         numberOfVertices -= 1
                         
-            self.closest = [-1] * self.numberOfVertices
-        
-        # print (f'MST of the graph is {mst.weight}')
+            self.cheapest = [-1] * self.numberOfVertices
         return mst.weight
 
 class Solution():
