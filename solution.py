@@ -159,10 +159,9 @@ class Graph:
                     # https://courses.engr.illinois.edu/cs374/fa2015/slides/18-mst.pdf 
                     
                     # For each tree in the connected components, find the closest edge
-                    if self.cheapest[rep1] == -1 or self.less(self.cheapest[rep1][2], w):
-                        self.cheapest[rep1] = edge
+                    self.cheapest[rep1] = (edge if (self.cheapest[rep1] == -1 or self.less(self.cheapest[rep1][2], w)) else self.cheapest[rep1])
 
-                    if self.cheapest[rep2] == -1 or self.less(self.cheapest[rep2][2], w):
+                    if self.cheapest[rep2] == -1 or self.less(self.cheapest[rep2][2], w): 
                         self.cheapest[rep2] = edge
 
                 else:
