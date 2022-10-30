@@ -81,7 +81,7 @@ class Graph:
             return u
         return self.find(self.parent[u])
 
-    def union(self, rank, u, v):
+    def union(self, u, v):
         '''
         When there is a request to union the sets containing node x and node y, the
         algorithm first find the roots of x and y. If the root of x is different from the root of
@@ -111,7 +111,6 @@ class Graph:
 
         numberOfVertices = self.numberOfVertices
         self.cheapest = [-1] * numberOfVertices
-        rank = [0] * numberOfVertices
 
         mst = Graph(numberOfVertices)
 
@@ -123,7 +122,7 @@ class Graph:
         if pick:
             mst.addEdge(pick)
             u,v,w = pick
-            self.union(rank, u, v)
+            self.union(u, v)
             numberOfVertices -= 1
         
         # Before running Boruvka, we've checked that the graph is connected, therefore,
@@ -173,7 +172,7 @@ class Graph:
                     # exceed error).
                     if self.find(u) != self.find(v):
                         mst.addEdge(edge)
-                        self.union(rank, u, v)
+                        self.union(u, v)
 
                         # Since we contracted on the two edges, we can safely reduce the number of 
                         # vertices left to process.
