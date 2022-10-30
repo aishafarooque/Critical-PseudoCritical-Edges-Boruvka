@@ -119,29 +119,34 @@ class Graph:
     def boruvka(self, pick, skip):
 
         numberOfVertices = self.numberOfVertices
-
-        self.parent = []
         self.cheapest = [-1] * numberOfVertices
         rank = [0] * numberOfVertices
 
         mst = Graph(numberOfVertices)
 
+        # Each vertex is it's own parent. 
         for i in range(0, numberOfVertices):
             self.parent.append(i)
-
+        
+        # Force the addition of an edge into the mst. 
         if pick:
             mst.addEdge(pick)
             u,v,w = pick
             self.union(rank, u, v)
             numberOfVertices -= 1
         
+        # Before running Boruvka, we've checked that the graph is connected, therefore,
+        # this while loop will never fail. 
         while numberOfVertices > 1:
             
+            # Select the minimum-weight edge incident on v
             for edge in self.graph:
-
+                
+                # Ignore the skipped edge and move onto the next.
                 if skip and edge == skip:
                     continue
-
+                
+                # Compute subsets in which u and v belong. 
                 u,v,w = edge
                 rep1 = self.find(u)
                 rep2 = self.find(v)
@@ -156,24 +161,39 @@ class Graph:
                     # For each tree in the connected components, find the closest edge
                     if self.cheapest[rep1] == -1 or self.less(self.cheapest[rep1][2], w):
                         self.cheapest[rep1] = edge
+
                     if self.cheapest[rep2] == -1 or self.less(self.cheapest[rep2][2], w):
                         self.cheapest[rep2] = edge
+
                 else:
                     # u and v belong to the same component
                     continue
-            
+
+            # Perform edge contraction on the cheapest vertices without self-loops
             for i in range(0, self.numberOfVertices):
+
                 edge = self.cheapest[i]
 
                 if edge and edge != -1:
                     u,v,w = edge
 
+                    # Eliminate all but the lowest-weight edge among each set of multiple edges.
+                    # Note - This find operation is doubled here. It is performed once again in the union operation.
+                    # It can be safely removed from here, but LeetCode does not accept it (produces a time limit 
+                    # exceed error).
                     if self.find(u) != self.find(v):
                         mst.addEdge(edge)
-                        self.union(rank, u,v)
+                        self.union(rank, u, v)
+
+                        # Since we contracted on the two edges, we can safely reduce the number of 
+                        # vertices left to process.
                         numberOfVertices -= 1
-                        
+            
+            # Because each edge has it's own set of cheaply-distant edges, we must reset the cheap array for each 
+            # iteration.
             self.cheapest = [-1] * self.numberOfVertices
+
+        # return weight of selected as MST edges
         return mst.weight
 
 class Solution():
@@ -190,7 +210,10 @@ class Solution():
 
         for e in range(0, len(edges)):
             edge = edges[e]
-
+            
+            # Since we're dealing with the same graph three times (mst on all edges, mst on one picked edge, and mst
+            # on a skipped edge), we must reset it's parent every time to save time on creating a new graph. 
+            g.parent = []
             pick = g.boruvka(edge, None)
 
             if e != 0:
@@ -202,7 +225,7 @@ class Solution():
                 critical.append(i)
                 i += 1
                 continue
-
+            g.parent = []
             skip = g.boruvka(None, edge)
 
             if skip > overall:
