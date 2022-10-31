@@ -81,11 +81,12 @@ class Graph:
         else:
             return -1
 
-    def less(self, parentSet, v):
+    def isPreferredOver(self, parentSet, w):
         '''Compares the weight between current cheapest edge and the next edge.
         We're essentially computing if the cheapest edge is preferred over the current edge.
         '''
-        return self.closest[parentSet][2] > v
+        if not parentSet or parentSet[2] > w:
+            return True
 
     def boruvka(self, pick, skip):
         ''' The pseudocode for this algorithm is from Dr. Gopal's book. An explanation 
@@ -138,10 +139,16 @@ class Graph:
                     # By the cut-edge property, it must be in the MST.
 
                     # For each tree in the connected components, find the closest edge.
-                    self.closest[rep1] = (edge if (
-                        self.closest[rep1] == defaultClosestCost or self.less(rep1, w)) else self.closest[rep1])
-                    self.closest[rep2] = (edge if (
-                        self.closest[rep2] == defaultClosestCost or self.less(rep2, w)) else self.closest[rep2])
+
+                    wu = self.closest[rep1]
+                    # Check if the current cheapest edge exists or is cheap than the current edge
+                    if not wu or self.isPreferredOver(wu, w):
+                        # The current edge is cheaper than the previous cheap edge, update cheapest
+                        self.closest[rep1] = edge
+                    
+                    wv = self.closest[rep2]
+                    if not wv or self.isPreferredOver(wv, w):
+                        self.closest[rep2] = edge
 
                 else:
                     # u and v belong to the same component
@@ -152,7 +159,7 @@ class Graph:
 
                 edge = self.closest[i]
 
-                # if all components have cheapest edge set to "None" then no more trees
+                # If all components have cheapest edge set to "None" then no more trees
                 # can be merged, so we check for that first. 
                 if edge and edge != skip:
                     u, v, w = edge
