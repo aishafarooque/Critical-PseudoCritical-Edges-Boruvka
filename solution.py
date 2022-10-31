@@ -6,7 +6,7 @@ The code is written in Python and can be run using Python and Python3 as languag
 https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/
 
 Due to a known bug on Leetcode, this code may not be accepted on the first run. However, here's proof of 
-submission: https://leetcode.com/submissions/detail/833591049/ 
+submission: https://leetcode.com/submissions/detail/833611724/
 '''
 
 class Graph:
@@ -82,20 +82,25 @@ class Graph:
             return -1
 
     def less(self, parentSet, v):
-        '''Compares the weight between current cheapest edge and the next edge.'''
+        '''Compares the weight between current cheapest edge and the next edge.
+        We're essentially computing if the cheapest edge is preferred over the current edge.
+        '''
         return self.closest[parentSet][2] > v
 
     def boruvka(self, pick, skip):
         ''' The pseudocode for this algorithm is from Dr. Gopal's book. An explanation 
         is inside the report submitted with this code.'''
-
+        
+        # This is the number of independent forest at the beginning of the algorithm.
+        # As edges are contracted, the number of vertices left to process are reduced.
         numberOfVertices = self.numberOfVertices
-        self.closest = [-1] * numberOfVertices
 
+        # By default, none of the vertices are close/cheapest to each other
+        defaultClosestCost = None
+
+        # This MST will be used to store the minimum weighted edge 
+        # and return the overall weight at the end. 
         mst = Graph(numberOfVertices)
-
-        # Each vertex is it's own parent.
-        self.parent = [i for i in range(0, numberOfVertices)]
 
         # Force the addition of an edge into the mst.
         if pick:
@@ -108,15 +113,22 @@ class Graph:
         # this while loop will never fail.
         while numberOfVertices > 1:
 
+            # We will store closest edge (minimum weighted edges) inside the
+            # closest array instead of building a new MST to save on time. 
+            # Because each edge has it's own set of cheaply-distant edges, we must 
+            # reset the cheap array for each iteration.
+            self.closest = [defaultClosestCost for x in range(0, self.numberOfVertices)]
+
             # Select the minimum-weight edge incident on v
             for edge in self.graph:
 
                 # Ignore the skipped edge and move onto the next.
                 if skip and edge == skip:
                     continue
-
-                # Compute subsets in which u and v belong.
+                
+                # let the current edge be the cheapest edge for the component of u
                 u, v, w = edge
+                # Compute subsets in which u and v belong.
                 rep1 = self.find(u)
                 rep2 = self.find(v)
 
@@ -127,9 +139,9 @@ class Graph:
 
                     # For each tree in the connected components, find the closest edge.
                     self.closest[rep1] = (edge if (
-                        self.closest[rep1] == -1 or self.less(rep1, w)) else self.closest[rep1])
+                        self.closest[rep1] == defaultClosestCost or self.less(rep1, w)) else self.closest[rep1])
                     self.closest[rep2] = (edge if (
-                        self.closest[rep2] == -1 or self.less(rep2, w)) else self.closest[rep2])
+                        self.closest[rep2] == defaultClosestCost or self.less(rep2, w)) else self.closest[rep2])
 
                 else:
                     # u and v belong to the same component
@@ -140,20 +152,17 @@ class Graph:
 
                 edge = self.closest[i]
 
-                if edge and edge != -1:
+                # if all components have cheapest edge set to "None" then no more trees
+                # can be merged, so we check for that first. 
+                if edge and edge != skip:
                     u, v, w = edge
 
                     # Eliminate all but the lowest-weight edge among each set of multiple edges.
                     if self.union(u, v) != -1:
-                        mst.addEdge(edge)
-
                         # Since we contracted on the two edges, we can safely reduce the number of
                         # vertices left to process.
                         numberOfVertices -= 1
-
-            # Because each edge has it's own set of cheaply-distant edges, we must reset the cheap array for each
-            # iteration.
-            self.closest = [-1] * self.numberOfVertices
+                        mst.addEdge(edge)
 
         # return weight of selected as MST edges
         return mst.weight
@@ -174,6 +183,9 @@ class Solution():
 
         # The MST of the graph including all edges will be used as a threshold to determine
         # if edges are critical or pseudocritical. 
+        
+        # Each vertex is it's own parent.
+        g.parent = [i for i in range(0, n)]
         overall = g.boruvka(None, None)
 
         for e in range(0, len(edges)):
@@ -181,7 +193,7 @@ class Solution():
 
             # Since we're dealing with the same graph three times (mst on all edges, mst on one picked edge, and mst
             # on a skipped edge), we must reset it's parent every time to save time on creating a new graph.
-            g.parent = []
+            g.parent = [i for i in range(0, n)]
             pick = g.boruvka(edge, None)
 
             # Create a temporary graph with all edges except the current one. 
@@ -197,7 +209,7 @@ class Solution():
                 i += 1
                 continue
 
-            g.parent = []
+            g.parent = [i for i in range(0, n)]
             skip = g.boruvka(None, edge)
 
             # Skipping this edge causes the overall weight to increase, therefore,
