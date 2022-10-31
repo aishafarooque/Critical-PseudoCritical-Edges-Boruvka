@@ -87,6 +87,7 @@ class Graph:
         '''
         if not parentSet or parentSet[2] > w:
             return True
+        return False
 
     def boruvka(self, pick, skip):
         ''' The pseudocode for this algorithm is from Dr. Gopal's book. An explanation 
@@ -186,7 +187,7 @@ class Solution():
         for edge in edges:
             g.addEdge(edge)
 
-        i = 0
+        edgeIndex = 0
 
         # The MST of the graph including all edges will be used as a threshold to determine
         # if edges are critical or pseudocritical. 
@@ -212,8 +213,8 @@ class Solution():
             # An MST cannot be formed by skipping the current edge, therefore, this edge 
             # is critical. 
             if g.countComponents(n, tempG) != 1:
-                critical.append(i)
-                i += 1
+                critical.append(edgeIndex)
+                edgeIndex += 1
                 continue
 
             g.parent = [i for i in range(0, n)]
@@ -222,13 +223,13 @@ class Solution():
             # Skipping this edge causes the overall weight to increase, therefore,
             # it is critical.
             if skip > overall:
-                critical.append(i)
+                critical.append(edgeIndex)
             
             # Forcing the inclusion of this weight has no effect on the MST, therefore,
             # it is pseudocritical. 
             elif pick == overall:
-                pseudocritical.append(i)
+                pseudocritical.append(edgeIndex)
 
-            i += 1
+            edgeIndex += 1
 
         return ([critical, pseudocritical])
