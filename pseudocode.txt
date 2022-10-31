@@ -56,8 +56,10 @@ class Graph:
         else
             return
     
-    function Less(parentSet, edge):
-        return parentSet.closest.weight > edge.weight
+    function IsPreferredOver(parentSet, edgeWeight):
+        if not parentSet or parentSet[2] > edgeWeight then 
+            return True
+        return False
     
     function Boruvka(pick, skip):
         numberOfVertices <- self.numberOfVertices
@@ -84,10 +86,13 @@ class Graph:
                 subsetV <- Find(v)
 
                 if subsetU != subsetV then 
-                    if isCloser(subsetU.weight, w) then
-                        closest[subsetU] = edge
-                    if ifCloser(subsetV.weight, w) then
-                        closest[subsetV] = edge
+                    wu <- self.closest[subsetU]
+                    if not wu or self.isPreferredOver(wu, w) then
+                        self.closest[subsetU] <- edge
+                    
+                    wv <- self.closest[subsetV]
+                    if not wv or self.isPreferredOver(wv, w) then 
+                        self.closest[subsetV] <- edge
             
             for i = 0 to numberOfVertices do
                 closestEdge <- closest[i]
@@ -102,6 +107,8 @@ class Graph:
 class Solution:
     function FindCriticalAndPseudoCriticalEdges(n, edges):
         g <- Graph(n)
+
+        edgeIndex <- 0
 
         critical <- []
         pseudocritical <- []
@@ -124,7 +131,7 @@ class Solution:
                 tempG <- edges[e+1:]
 
             if g.CountComponents(n, tempG) not 1:
-                critical.Append(i++)
+                critical.Append(edgeIndex++)
                 continue
             
             for i=0 to n do
@@ -133,10 +140,10 @@ class Solution:
             skip = g.Boruvka(None, edge)
 
             if skip > overall then
-                critical.Append(i)
+                critical.Append(edgeIndex)
 
             else if pick == overall then 
-                pseudocritical.Append(i)
+                pseudocritical.Append(edgeIndex)
 
-            i++
+            edgeIndex++
     return ([ critical, pseudocritical ])
