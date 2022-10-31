@@ -1,0 +1,142 @@
+class Graph:
+    function __init__(n):
+        self.graph = self.parent = self.closest <- []
+        self.weight <- 0
+        self.numberOfVertices <- n
+    
+    function AddEdge(edge):
+         _, _, w = edge
+        Add edge(u,v) to self.graph
+        self.weight <- self.weight + w
+
+    function CountComponents(n, edges):
+        adj <- dict()
+        visited <- [False] * n
+        connectedComponents <- 0
+
+        for edge in edges do
+            u, v, w <- edge
+            if u in adj then 
+                Add v to adj[u]
+            else 
+                Set adj[u] equal to v
+
+            if v in adj then
+                Add u to adj[v]
+            else
+                Set adj[v] equal to u
+
+        if len(adj) < n: return -1
+
+        for i = 0 to n do
+            if i.visited is False then
+                connectedComponents <- connectedComponents + 1
+                self.Dfs(adj, visited, i)
+
+        return connectedComponents
+    
+    function Dfs(adj, visited, i):
+        if i.visited is True then
+            return None
+        
+        i.visited <- True
+
+        for j = 0 to adj[i].length do
+            Dfs(adj, visited, adj[i][j])
+    
+    function Find(u):
+        if u.parent is u then 
+            return u
+
+        return Find(u.parent)
+    
+    function Union(u, v):
+        if u and v are not in the same set then
+            u.parent = v
+        else
+            return
+    
+    function Less(parentSet, edge):
+        return parentSet.closest.weight > edge.weight
+    
+    function Boruvka(pick, skip):
+        numberOfVertices <- self.numberOfVertices
+        defaultClosestCost <- None
+        mst <- Graph(numberOfVertices)
+
+        if pick then    
+            Add picked edge to the MST
+            Union(pick)
+            numberOfVertices -= 1
+
+        while numberOfVertices > 1 do
+
+            for x = 0 to numberOfVertices do
+                closest[x] = defaultClosestCost
+
+            for edge in graph do
+                if skip and edge = skip then
+                    continue
+                
+                u, v, w <- edge
+
+                subsetU <- Find(u)
+                subsetV <- Find(v)
+
+                if subsetU != subsetV then 
+                    if isCloser(subsetU.weight, w) then
+                        closest[subsetU] = edge
+                    if ifCloser(subsetV.weight, w) then
+                        closest[subsetV] = edge
+            
+            for i = 0 to numberOfVertices do
+                closestEdge <- closest[i]
+
+                if closestEdge != skip then 
+                    u, v, w <- edge
+                    if Union(u, v) != -1 then
+                        numberOfVertices <- numberOfVertices -= 1
+                        mst.AddEdge(closestEdge)
+        return mst.weight
+    
+class Solution:
+    function FindCriticalAndPseudoCriticalEdges(n, edges):
+        g <- Graph(n)
+
+        critical <- []
+        pseudocritical <- []
+
+        for i=0 to n do
+            g.parent <- i
+
+        for e=0 to len(edges) do
+            
+            edge <- edges[e]
+
+            for i=0 to n do
+                g.parent <- i
+
+            pick = g.Boruvka(edge, None)
+
+            if e not 0 then
+                tempG <- edges[:e] + edges[e+1:]
+            else 
+                tempG <- edges[e+1:]
+
+            if g.CountComponents(n, tempG) not 1:
+                critical.Append(i++)
+                continue
+            
+            for i=0 to n do
+                g.parent <- i
+            
+            skip = g.Boruvka(None, edge)
+
+            if skip > overall then
+                critical.Append(i)
+
+            else if pick == overall then 
+                pseudocritical.Append(i)
+
+            i++
+    return ([ critical, pseudocritical ])
