@@ -91,7 +91,17 @@ class Graph:
 
     def boruvka(self, pick, skip):
         ''' The pseudocode for this algorithm is from Dr. Gopal's book. An explanation 
-        is inside the report submitted with this code.'''
+        is inside the report submitted with this code.
+        1: function Boruvka(G)
+        2:  while |G| > 1 do
+        3:      for v ∈ G do
+        4:          Select the minimum-weight edge incident on v
+        5:      Contract all edges chosen on line 4
+        6:      Eliminate self-loops
+        7:      Eliminate all but the lowest-weight edge among each set of multiple edges 
+                        ▷ edges that go across the same pair of vertices
+        8: return edges selected on line 4 as MST edges.
+        '''
         
         # This is the number of independent forest at the beginning of the algorithm.
         # As edges are contracted, the number of vertices left to process are reduced.
@@ -128,17 +138,21 @@ class Graph:
                 if skip and edge == skip:
                     continue
                 
-                # let the current edge be the cheapest edge for the component of u
+                # Let the current edge be the cheapest edge
                 u, v, w = edge
-                # Compute subsets in which u and v belong.
+                
+                # Compute subsets in which u and v belong. Their subsets are computed because we 
+                # will find the cheapest edge in each subset and compare their cheapest edge with the 
+                # current edge. 
                 rep1 = self.find(u)
                 rep2 = self.find(v)
 
+                # u and v are not in the same subset, their cheapest edges can be computed
+                # with respect to the current cheapest weight in rep1 and rep2 
                 if rep1 != rep2:
 
                     # The cheapest edge going out from a tree T is the cheapest edge between T and "the outside world"
                     # By the cut-edge property, it must be in the MST.
-
                     # For each tree in the connected components, find the closest edge.
 
                     wu = self.closest[rep1]
@@ -156,8 +170,10 @@ class Graph:
                     continue
 
             # Perform edge contraction on the cheapest vertices without self-loops
+            # Eliminates all but the lowest-weight edge among each set of multiple edges
             for i in range(0, self.numberOfVertices):
-
+                
+                # Contains the lowest-weight edge for the current vertex. 
                 edge = self.closest[i]
 
                 # If all components have cheapest edge set to "None" then no more trees
